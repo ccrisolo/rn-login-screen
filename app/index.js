@@ -26,6 +26,7 @@ const {
   timing,
   clockRunning,
   interpolate,
+  concat,
 } = Animated;
 
 //sets animation state
@@ -106,6 +107,13 @@ class MusicApp extends Component {
       outputRange: [1, 0],
       extrapolate: Extrapolate.CLAMP,
     });
+
+    this.rotateCross = interpolate(this.buttonOpacity, {
+      inputRange: [0, 1],
+      // need to import concat on Animated const at top of page for output range
+      outputRange: [180, 360],
+      extrapolate: Extrapolate.CLAMP,
+    });
   }
   render() {
     return (
@@ -165,6 +173,19 @@ class MusicApp extends Component {
               justifyContent: "center",
             }}
           >
+            {/* add animated X button to slide up screen to OG position */}
+            <TapGestureHandler>
+              <Animated.View style={styles.closeButton}>
+                <Animated.Text
+                  style={{
+                    fontSize: 15,
+                    transform: [{ rotate: concat(this.rotateCross, "deg") }],
+                  }}
+                >
+                  X
+                </Animated.Text>
+              </Animated.View>
+            </TapGestureHandler>
             <TextInput
               placeholder="EMAIL"
               style={styles.textInput}
@@ -202,6 +223,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.2,
+    shadowColor: "black",
   },
   textInput: {
     height: 50,
@@ -211,6 +233,21 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     marginVertical: 5,
     borderColor: "rgba(0,0,0,0.2)",
+  },
+  closeButton: {
+    height: 40,
+    width: 40,
+    backgroundColor: "white",
+    borderRadius: 20,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    top: -20,
+    left: width / 2 - 20,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.2,
+    shadowColor: "black",
   },
 });
 
