@@ -3,10 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   Dimensions,
   TextInput,
+  ClippingRectangle,
 } from "react-native";
+
+import Svg, { Image, Circle, ClipPath } from "react-native-svg";
 import Animated, { Easing, Extrapolate } from "react-native-reanimated";
 import { TapGestureHandler, State } from "react-native-gesture-handler";
 
@@ -78,16 +80,16 @@ class MusicApp extends Component {
     ]);
 
     this.onCloseState = event([
-        {
-          nativeEvent: ({ state }) =>
-            block([
-              cond(
-                eq(state, State.END),
-                set(this.buttonOpacity, runTiming(new Clock(), 0, 1))
-              ),
-            ]),
-        },
-      ]);
+      {
+        nativeEvent: ({ state }) =>
+          block([
+            cond(
+              eq(state, State.END),
+              set(this.buttonOpacity, runTiming(new Clock(), 0, 1))
+            ),
+          ]),
+      },
+    ]);
 
     this.buttonY = interpolate(this.buttonOpacity, {
       inputRange: [0, 1],
@@ -98,7 +100,7 @@ class MusicApp extends Component {
     this.bgY = interpolate(this.buttonOpacity, {
       inputRange: [0, 1],
       //below slides the screen up 1/3 of the height
-      outputRange: [-height / 3, 0],
+      outputRange: [-height / 3 -50, 0],
       extrapolate: Extrapolate.CLAMP,
     });
 
@@ -126,7 +128,6 @@ class MusicApp extends Component {
       outputRange: [180, 360],
       extrapolate: Extrapolate.CLAMP,
     });
-
   }
   render() {
     return (
@@ -143,10 +144,23 @@ class MusicApp extends Component {
             transform: [{ translateY: this.bgY }],
           }}
         >
-          <Image
-            source={require("../assets/earthBG.jpg")}
-            style={{ flex: 1, height: null, width: null }}
-          />
+          <Svg height={height + 50} width={width}>
+            {/* add ClipPath with Cirlce inside to make round bottom fo slide up image */}
+            <ClipPath id="clip">
+              {/* r is radius, cx is center position */}
+              <Circle r={height + 50} cx={width / 2} />
+            </ClipPath>
+            <Image
+              href={require("../assets/earthBG.jpg")}
+              height={height + 50}
+              width={width}
+              //xMidYMid takes a center portions of the image
+              // using slice to place that slice of image as the background
+              //without slice you would get the whole image not fitted to whole screen
+              preserveAspectRatio="xMidYMid slice"
+              clipPath="url(#clip)"
+            />
+          </Svg>
         </Animated.View>
         <View style={{ height: height / 3, justifyContent: "center" }}>
           {/* TapGestureHandler makes view pressable/clickable. has an onHandlerStateChange prop */}
